@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
-func DefaultErrorHandler(c *fiber.Ctx, err error) error {
+func CustomErrorHandler(c fiber.Ctx, err error) error {
 	code := http.StatusBadRequest
 	res := map[string]any{
 		"code":         code,
@@ -20,7 +20,7 @@ func DefaultErrorHandler(c *fiber.Ctx, err error) error {
 	return c.Status(code).JSON(res)
 }
 
-func getUser(c *fiber.Ctx) error {
+func getUser(c fiber.Ctx) error {
 	// It always fails
 	return errors.New("some error occurred")
 }
@@ -34,17 +34,17 @@ func userRoutes() *fiber.App {
 
 func V1Routes() *fiber.App {
 	app := fiber.New(fiber.Config{
-		ErrorHandler: DefaultErrorHandler,
+		ErrorHandler: CustomErrorHandler,
 	})
 
-	app.Mount("/users", userRoutes())
+	app.Use("/users", userRoutes())
 	return app
 }
 
 func main() {
 	port := 8080
 	app := fiber.New()
-	app.Mount("/api/v1", V1Routes())
+	app.Use("/api/v1", V1Routes())
 
 	fmt.Printf("running on port %d...\n", port)
 
